@@ -1,4 +1,4 @@
-id,configName,creatorsCategory,analysisInstruction,newConceptsInstruction
+id,configName,creatorsCategory,analysisInstruction,newConceptsInstruction,ctaText,websiteUrl,currentOfferName,bookingLink,urgencyLine
 11280395-1ce7-4d15-8c6d-649cd5b82519,FABODXB,dubai-real-estate,"# CONCEPT
 Overall description of the concept of this video, and what makes it valuable and interesting (1-3 sentences).
 -> Clarify the core tension: what belief is challenged, what mistake is exposed, or what outcome is promised.
@@ -80,7 +80,7 @@ Include:
 ...
 
 # CONCEPT 3
-..."
+...",,,,,
 4bfa69dd-35ab-405a-8089-dd1452059c4f,AI Blog Content,ai-creators,"# CONCEPT
 Overall description of the concept of this video, and what makes it valuable and interesting (1-3 sentences).
 -> Clarify the core tension: what belief is challenged, what mistake is exposed, or what outcome is promised.
@@ -162,7 +162,7 @@ Include:
 ...
 
 # CONCEPT 3
-..."
+...",,,,,
 bd9ed494-1523-4cb7-b43e-dba2305aecef,Real Estate Videos Fabo,dubai-real-estate,"""# CONCEPT
 Overall description of the concept of this video, and what makes it valuable and interesting (1–3 sentences).
 → Clarify the core tension: what belief is challenged, what mistake is exposed, or what outcome is promised.
@@ -244,4 +244,79 @@ Include:
 ...
 
 # CONCEPT 3
-..."
+...",,,,,
+cd423a79-eb17-401a-b19e-0cfec7ef89f2,Roy Automates - AI Training,roy-automates,"# CONCEPT
+Overall description of the concept of this video, and what makes it valuable and interesting (1-3 sentences).
+-> Clarify the core tension: what belief is challenged, what mistake is exposed, or what outcome is promised.
+-> One clear idea only. No subtopics.
+
+# HOOK
+Detailed description of the first 5 seconds of the video, what makes it scroll-stopping and attention-grabbing, why a viewer needs to stop to watch it (1-3 sentences).
+-> Break it down into:
+- VISUAL (what is seen in the first 1-2 seconds: movement, facial expression, contrast, pattern break)
+- TEXT (short on-screen statement: danger, promise, or contradiction, max 6-8 words)
+- AUDIO (first spoken words: confident, direct, no intro, no context)
+
+# RETENTION MECHANISMS
+Detailed description of how the creator manages to retain viewers throughout the video (1-7 sentences).
+-> Open loops, delayed payoff, micro-escalations, pattern interrupts, forward momentum.
+
+# REWARD
+Describe the ultimate value that the viewer gets (1-3 sentences).
+-> Education, Entertainment, or Inspiration. Proportional to time invested.
+
+# SCRIPT
+Describe the full script (1-20 sentences).
+-> Hook -> Problem -> Stakes -> Insight -> Close. Short sentences. Spoken language only.
+
+OVERALL RULE: THE SHORTER - THE BETTER. Clarity > cleverness. Retention > information.","Adapt this video for Roy Kahuthu (@roy_automates), a Claude Educator and AI Trainer based in Nairobi, Kenya.
+
+Roy runs Claude Cowork / Claude Code corporate training for African businesses (corporates 50-500 employees, digital agencies, NGOs). His audience cares about productivity gains, team upskilling, and clear ROI — not AI hype.
+
+Brand voice: direct, confident, no fluff. Nairobi-rooted but globally credible. Premium but approachable. Always speaks to corporate ROI.
+
+Content pillars:
+- TEACH: Claude Cowork tips, features, workflows (3x/week Reels)
+- PROVE: Before/after results, corporate training social proof (1x/week)
+- INSPIRE: Big ideas, opinions on AI in African business (1x/week)
+- SELL: Soft CTAs driving to training booking (1x/week)
+
+Task:
+Give us 3 NEW video concepts inspired by the ORIGINAL reference.
+Do not copy the original.
+Translate the core idea into the Claude training / African corporate context.
+MAINLY iterate and sharpen the HOOKS.
+
+Focus:
+- First 3 seconds must stop a corporate L&D manager or CTO from scrolling
+- Hooks should expose a productivity mistake, challenge an AI belief, or promise a workflow shortcut
+- Calm authority > hype
+- Show outcomes > theoretical benefits
+- Reference African business context naturally when relevant
+- No buzzwords (""game-changer"", ""revolutionary"", ""insane"")
+
+The output should have this format:
+
+# CONCEPT 1
+Text description (1-3 sentences)
+
+## HOOK
+Detailed hook description (1-3 sentences)
+Describe:
+- What is seen in the first 2 seconds
+- What is said in the first line
+- Why this hook works for African corporate decision-makers
+
+## SCRIPT
+Full script (1-20 sentences)
+Include:
+- Scene flow
+- Spoken text / voiceover
+- Clear ROI-focused payoff
+- Confident, grounded delivery
+
+# CONCEPT 2
+...
+
+# CONCEPT 3
+...",Book a Claude training for your team,https://roykahuthu.com,Claude Cowork Masterclass - April 2026,https://roykahuthu.com/book,Only 3 corporate spots left this month

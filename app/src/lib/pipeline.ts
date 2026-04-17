@@ -1,8 +1,7 @@
 import { v4 as uuid } from "uuid";
 import { readConfigs, readCreators, readVideos, writeVideos } from "./csv";
 import { scrapeReels } from "./apify";
-import { uploadVideo, analyzeVideo } from "./gemini";
-import { generateNewConcepts } from "./claude";
+import { analyzeReel, generateNewConcepts } from "./openai";
 import type { PipelineParams, PipelineProgress, Video, ActiveTask } from "./types";
 
 const VIDEO_CONCURRENCY = 3;
@@ -16,6 +15,8 @@ interface ScrapedVideo {
   username: string;
   thumbnail: string;
   datePosted: string;
+  caption?: string;
+  hashtags?: string[];
 }
 
 async function runWithConcurrency<T>(
@@ -115,6 +116,8 @@ export async function runPipeline(
             username: r.ownerUsername || creator.username,
             thumbnail: r.images?.[0] || "",
             datePosted: r.timestamp?.split("T")[0] || "",
+            caption: r.caption,
+            hashtags: r.hashtags,
             timestamp: new Date(r.timestamp),
           }))
           .filter((v) => v.timestamp >= cutoffDate);
@@ -162,29 +165,25 @@ export async function runPipeline(
       const label = `${video.views.toLocaleString()} views`;
 
       try {
-        addTask({ id: taskId, creator: video.username, step: "Downloading", views: video.views });
+        addTask({ id: taskId, creator: video.username, step: "OpenAI analyzing thumbnail", views: video.views });
+        log(`@${video.username} (${label}): OpenAI vision analyzing thumbnail`);
 
-        const videoResponse = await fetch(video.videoUrl);
-        if (!videoResponse.ok) throw new Error(`Download failed: ${videoResponse.status}`);
-        const videoBuffer = Buffer.from(await videoResponse.arrayBuffer());
-        const contentType = videoResponse.headers.get("content-type") || "video/mp4";
-
-        updateTask(taskId, "Uploading to Gemini");
-        log(`@${video.username} (${label}): uploading to Gemini`);
-
-        const fileData = await uploadVideo(videoBuffer, contentType);
-
-        updateTask(taskId, "Gemini analyzing");
-        log(`@${video.username} (${label}): Gemini analyzing`);
-
-        const analysis = await analyzeVideo(
-          fileData.uri,
-          fileData.mimeType,
+        const analysis = await analyzeReel(
+          {
+            thumbnailUrl: video.thumbnail,
+            creator: video.username,
+            views: video.views,
+            likes: video.likes,
+            comments: video.comments,
+            caption: video.caption,
+            hashtags: video.hashtags,
+            postUrl: video.postUrl,
+          },
           config.analysisInstruction
         );
 
-        updateTask(taskId, "Claude generating concepts");
-        log(`@${video.username} (${label}): Claude generating concepts`);
+        updateTask(taskId, "OpenAI generating concepts");
+        log(`@${video.username} (${label}): OpenAI generating concepts`);
 
         const newConcepts = await generateNewConcepts(analysis, config.newConceptsInstruction, {
           ctaText: config.ctaText,

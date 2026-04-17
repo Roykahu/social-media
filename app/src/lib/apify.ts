@@ -7,6 +7,8 @@ export interface ApifyReel {
   ownerUsername: string;
   images: string[];
   timestamp: string;
+  caption?: string;
+  hashtags?: string[];
 }
 
 interface ApifyProfileResult {

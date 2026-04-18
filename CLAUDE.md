@@ -2,11 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **🔄 Resuming work?** Read [`.planning/SESSION_2026-04-17_HANDOFF.md`](.planning/SESSION_2026-04-17_HANDOFF.md) first — it has the full state, recent decisions, and next-step candidates.
+
 ---
 
 ## What This Is
 
-**@roy_automates Content OS** — an AI-powered content creation system for Instagram. Scrapes competitors' viral Reels, analyzes with Gemini, generates adapted concepts with Claude, builds carousels, produces Remotion video templates, and syncs everything to Obsidian. Built for Roy Kahuthu's Claude training brand targeting African corporates.
+**@roy_automates Content OS** — an AI-powered content creation system for Instagram. Scrapes competitors' viral Reels via Apify, analyzes thumbnails with **OpenAI GPT-4o vision**, generates adapted concepts with **OpenAI GPT-4o**, builds carousels, produces Remotion video templates, and syncs everything to Obsidian. Built for Roy Kahuthu's Claude training brand targeting African corporates.
+
+> **AI backend note:** As of 2026-04-17 the pipeline uses OpenAI for both vision and text (replaces Gemini + Claude). The `gemini.ts` and `claude.ts` files in `app/src/lib/` still exist but are unused. Active client: `app/src/lib/openai.ts`. See handoff doc for rationale.
 
 ---
 

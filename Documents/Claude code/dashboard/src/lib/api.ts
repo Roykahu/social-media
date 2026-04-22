@@ -12,12 +12,21 @@ import {
   getDemoTeacherView,
 } from "./demo-data";
 
-const WEBHOOK_BASE =
+// Phase 4: API_BASE points at Railway when NEXT_PUBLIC_API_BASE_URL is set (preview/prod
+// cutover); falls through to n8n while migration is in progress.
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL ||
+  "https://learninggoalsformations.app.n8n.cloud/webhook";
+
+// N8N_BASE is ONLY for endpoints Phase 4 does NOT own (contract-approve-send — Phase 6
+// owns that migration). Remove this when Phase 6 ships.
+const N8N_BASE =
   process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL ||
   "https://learninggoalsformations.app.n8n.cloud/webhook";
 
 async function fetchEndpoint<T>(path: string): Promise<T[]> {
-  const url = `${WEBHOOK_BASE}/${path}`;
+  const url = `${API_BASE}/${path}`;
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
     throw new Error(`Failed to fetch ${path}: ${res.status}`);
@@ -31,7 +40,7 @@ async function fetchEndpoint<T>(path: string): Promise<T[]> {
 
 export async function getStudents(): Promise<Student[]> {
   if (DEMO_MODE) return demoStudents;
-  const raw = await fetchEndpoint<Student>("dashboard-students");
+  const raw = await fetchEndpoint<Student>("api/dashboard-students");
   return deduplicateStudents(raw);
 }
 
@@ -55,32 +64,24 @@ function scoreStudent(s: Student): number {
 
 export async function getTeachers(): Promise<Teacher[]> {
   if (DEMO_MODE) return demoTeachers;
-  return fetchEndpoint<Teacher>("dashboard-teachers");
+  return fetchEndpoint<Teacher>("api/dashboard-teachers");
 }
 
 export async function getProgress(): Promise<ProgressRecord[]> {
   if (DEMO_MODE) return demoProgress;
-  return fetchEndpoint<ProgressRecord>("dashboard-progress");
+  return fetchEndpoint<ProgressRecord>("api/dashboard-progress");
 }
 
 export async function getPending(): Promise<PendingRecord[]> {
   if (DEMO_MODE) return demoPending;
-  const url = `${WEBHOOK_BASE}/dashboard-pending`;
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch pending: ${res.status}`);
-  }
-  const text = await res.text();
-  if (!text || text.trim() === "") {
-    return [];
-  }
-  const parsed = JSON.parse(text);
-  return parsed.data || [];
+  // Phase 4 D-02: Railway returns bare PendingRecord[] (no {data} wrapper).
+  // The old parsed.data || [] unwrap is removed (would always return [] against new server).
+  return fetchEndpoint<PendingRecord>("api/dashboard-pending");
 }
 
 export async function getTeacherView(email: string): Promise<TeacherViewData> {
   if (DEMO_MODE) return getDemoTeacherView(email);
-  const url = `${WEBHOOK_BASE}/dashboard-teacher-view?email=${encodeURIComponent(email)}`;
+  const url = `${API_BASE}/api/dashboard-teacher-view?email=${encodeURIComponent(email)}`;
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
     throw new Error(`Failed to fetch teacher view: ${res.status}`);
@@ -94,12 +95,12 @@ export async function getTeacherView(email: string): Promise<TeacherViewData> {
 
 export async function getPendingContracts(): Promise<PendingContract[]> {
   if (DEMO_MODE) return demoPendingContracts;
-  return fetchEndpoint<PendingContract>("dashboard-pending-contracts");
+  return fetchEndpoint<PendingContract>("api/dashboard-pending-contracts");
 }
 
 export async function approveAndSendContract(id: string): Promise<{ success: boolean; message: string }> {
   if (DEMO_MODE) return { success: true, message: "Contract sent (demo mode)" };
-  const url = `${WEBHOOK_BASE}/contract-approve-send`;
+  const url = `${N8N_BASE}/contract-approve-send`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -131,7 +132,7 @@ export async function generateTeacherContracts(studentEmail: string): Promise<{ 
 
 export async function getVeille(): Promise<VeilleData> {
   if (DEMO_MODE) return demoVeille;
-  const url = `${WEBHOOK_BASE}/dashboard-veille`;
+  const url = `${API_BASE}/api/dashboard-veille`;
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
     throw new Error(`Failed to fetch veille: ${res.status}`);
@@ -154,7 +155,7 @@ export async function getVeille(): Promise<VeilleData> {
 
 export async function approveVeilleEntry(id: string, action: "approve" | "archive"): Promise<{ success: boolean }> {
   if (DEMO_MODE) return { success: true };
-  const url = `${WEBHOOK_BASE}/dashboard-veille-approve`;
+  const url = `${API_BASE}/api/dashboard-veille-approve`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -172,7 +173,7 @@ export async function approveVeilleEntry(id: string, action: "approve" | "archiv
 
 export async function addVeilleEntry(entry: { date: string; source: string; sourceUrl: string; indicateur: string; category: string; summary: string; actionTaken: string; evidenceLink: string }): Promise<{ success: boolean }> {
   if (DEMO_MODE) return { success: true };
-  const url = `${WEBHOOK_BASE}/dashboard-veille-add`;
+  const url = `${API_BASE}/api/dashboard-veille-add`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -205,7 +206,7 @@ export async function sendProgressReminder(data: {
 
 export async function getMessages(): Promise<Message[]> {
   if (DEMO_MODE) return demoMessages;
-  const url = `${WEBHOOK_BASE}/messages-list`;
+  const url = `${API_BASE}/api/messages-list`;
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to fetch messages: ${res.status}`);
   const text = await res.text();
@@ -242,12 +243,12 @@ export async function sendVeilleToTeachers(data: {
 
 export async function getInvoices(): Promise<InvoiceStatus[]> {
   if (DEMO_MODE) return [];
-  return fetchEndpoint<InvoiceStatus>("dashboard-invoices");
+  return fetchEndpoint<InvoiceStatus>("api/dashboard-invoices");
 }
 
 export async function markInvoicePaid(id: string): Promise<{ success: boolean }> {
   if (DEMO_MODE) return { success: true };
-  const url = `${WEBHOOK_BASE}/dashboard-invoice-update`;
+  const url = `${API_BASE}/api/dashboard-invoice-update`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -260,12 +261,12 @@ export async function markInvoicePaid(id: string): Promise<{ success: boolean }>
 
 export async function getCDCAudits(): Promise<CDCAuditEntry[]> {
   if (DEMO_MODE) return [];
-  return fetchEndpoint<CDCAuditEntry>("dashboard-cdc");
+  return fetchEndpoint<CDCAuditEntry>("api/dashboard-cdc");
 }
 
 export async function addCDCAudit(entry: Omit<CDCAuditEntry, "id" | "createdAt">): Promise<{ success: boolean }> {
   if (DEMO_MODE) return { success: true };
-  const url = `${WEBHOOK_BASE}/dashboard-cdc-add`;
+  const url = `${API_BASE}/api/dashboard-cdc-add`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -278,7 +279,7 @@ export async function addCDCAudit(entry: Omit<CDCAuditEntry, "id" | "createdAt">
 
 export async function getCDCAIPrep(): Promise<CDCAIPrepRecommendation> {
   if (DEMO_MODE) return { priorities: [], weakSpots: [], newRequirements: [], evidenceToPrep: [] };
-  const url = `${WEBHOOK_BASE}/dashboard-cdc-ai-prep`;
+  const url = `${API_BASE}/api/dashboard-cdc-ai-prep`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -290,7 +291,7 @@ export async function getCDCAIPrep(): Promise<CDCAIPrepRecommendation> {
 
 export async function getFeedback(): Promise<FeedbackRecord[]> {
   if (DEMO_MODE) return [];
-  return fetchEndpoint<FeedbackRecord>("dashboard-feedback");
+  return fetchEndpoint<FeedbackRecord>("api/dashboard-feedback");
 }
 
 export async function getBPFReport(year: number): Promise<BPFAggregation> {
@@ -305,7 +306,7 @@ export async function getBPFReport(year: number): Promise<BPFAggregation> {
       totalHours: 0,
     };
   }
-  const url = `${WEBHOOK_BASE}/bpf-report?year=${year}`;
+  const url = `${API_BASE}/api/bpf-report?year=${year}`;
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to fetch BPF: ${res.status}`);
   return res.json();
@@ -313,8 +314,8 @@ export async function getBPFReport(year: number): Promise<BPFAggregation> {
 
 export async function getTimetable(week?: string): Promise<TimetableData> {
   const url = week
-    ? `${WEBHOOK_BASE}/dashboard-timetable?week=${encodeURIComponent(week)}`
-    : `${WEBHOOK_BASE}/dashboard-timetable`;
+    ? `${API_BASE}/api/dashboard-timetable?week=${encodeURIComponent(week)}`
+    : `${API_BASE}/api/dashboard-timetable`;
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to fetch timetable: ${res.status}`);
   return res.json();
@@ -336,7 +337,7 @@ export async function importStudents(students: StudentImportRow[]): Promise<Impo
 
 export async function getContracts(): Promise<Contract[]> {
   if (DEMO_MODE) return demoContracts;
-  const raw = await fetchEndpoint<Contract>("dashboard-contracts");
+  const raw = await fetchEndpoint<Contract>("api/dashboard-contracts");
   return raw.map((c) => {
     const parsed = parseContractName(c.Contract_name);
     return {

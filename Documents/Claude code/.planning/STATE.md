@@ -25,3 +25,11 @@ Continuing from session 2026-04-11. Onboarding workflow (Ec1G5smZxBAkjc5N) fixed
 ## Blockers/Concerns
 - n8n Data Tables API not accessible via REST (must use DT nodes inside workflows)
 - IF nodes break when deployed via API (use Code nodes instead)
+- n8n DT upsert with multi-column filter only matches first column (use pre-check + insert)
+- n8n DT delete operation has internal bugs — manual cleanup via UI required
+
+## Quick Tasks Completed
+
+| # | Description | Date | Commit | Status | Directory |
+|---|-------------|------|--------|--------|-----------|
+| 260411-nyl | Standalone teacher contract workflow + dashboard Gen Teachers button | 2026-04-12 | 5fda1e2 | Complete | .planning/quick/260411-nyl-build-standalone-teacher-contract-workfl/ |

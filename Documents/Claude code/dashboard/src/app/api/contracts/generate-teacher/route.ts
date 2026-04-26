@@ -22,6 +22,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "studentEmail required" }, { status: 400 });
   }
 
+  // Phase 9 D-06a — Teacher contract still proxies through n8n workflow DkUrvmqy6NhLy6UG.
+  // Phase 5 (WF-TC-01) ports this to Railway POST /api/contracts/generate-teacher.
+  // Until then, NEXT_PUBLIC_N8N_WEBHOOK_URL must stay defined in Vercel env so this
+  // route works. Removing the hardcoded fallback (D-06) intentionally LEFT this one
+  // route on n8n — see .planning/phases/09-cutover/deferred-items.md.
   const webhookBase = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL || "https://learninggoalsformations.app.n8n.cloud/webhook";
   try {
     const res = await fetch(`${webhookBase}/generate-teacher-contracts`, {

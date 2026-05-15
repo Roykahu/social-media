@@ -20,6 +20,7 @@ export interface Student {
   teacherAssigned: string | null;
   language: string | null;
   initialLevel: string | null;
+  deletedAt?: string | null;
 }
 
 export type StudentStage =

@@ -43,10 +43,41 @@ async function fetchEndpoint<T>(path: string): Promise<T[]> {
   return JSON.parse(text);
 }
 
-export async function getStudents(): Promise<Student[]> {
+export async function getStudents(opts: { archived?: boolean } = {}): Promise<Student[]> {
   if (DEMO_MODE) return demoStudents;
-  const raw = await fetchEndpoint<Student>("api/dashboard-students");
+  const path = opts.archived
+    ? "api/dashboard-students?archived=1"
+    : "api/dashboard-students";
+  const raw = await fetchEndpoint<Student>(path);
   return deduplicateStudents(raw);
+}
+
+export async function bulkDeleteStudents(ids: string[]): Promise<{ success: boolean; deletedCount: number }> {
+  if (DEMO_MODE) return { success: true, deletedCount: ids.length };
+  const res = await fetch("/api/students/bulk-delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ids }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`bulk-delete failed: ${res.status} ${text}`);
+  }
+  return res.json();
+}
+
+export async function bulkRestoreStudents(ids: string[]): Promise<{ success: boolean; restoredCount: number }> {
+  if (DEMO_MODE) return { success: true, restoredCount: ids.length };
+  const res = await fetch("/api/students/bulk-restore", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ids }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`bulk-restore failed: ${res.status} ${text}`);
+  }
+  return res.json();
 }
 
 function deduplicateStudents(students: Student[]): Student[] {
